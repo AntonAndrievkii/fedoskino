@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Федоскино — детальная смета: вёрстка и бэкенд</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --ink: #1a1a1a;
+      --muted: #5c5a56;
+      --line: #d9d2c6;
+      --card: #fffdf9;
+      --fe: #2f4a3c;
+      --be: #3d4f6f;
+      --fe-bg: #e8f0eb;
+      --be-bg: #e9eef6;
+      --money: #1f3d2e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.45;
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 36px 18px 72px; }
+    h1 { font-size: clamp(1.45rem, 2.8vw, 1.9rem); margin: 0 0 8px; letter-spacing: -0.02em; }
+    .lead { color: var(--muted); margin: 0 0 20px; max-width: 40rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+    .pill {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 999px; padding: 5px 12px; font-size: 0.88rem;
+    }
+    .pill strong { color: var(--fe); }
+    .toc {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 32px;
+    }
+    .toc a { color: var(--fe); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .toc ol { margin: 8px 0 0; padding-left: 1.2rem; }
+    .toc li { margin: 4px 0; }
+    h2 {
+      font-size: 1.35rem; margin: 40px 0 10px; padding: 12px 14px;
+      border-radius: 10px;
+    }
+    h2.fe { background: var(--fe-bg); color: var(--fe); }
+    h2.be { background: var(--be-bg); color: var(--be); }
+    h3 {
+      font-size: 1.05rem; margin: 22px 0 8px;
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline;
+      justify-content: space-between;
+    }
+    .badge {
+      font-size: 0.85rem; font-weight: 700; color: #fff;
+      padding: 3px 10px; border-radius: 7px; white-space: nowrap;
+    }
+    .badge.fe { background: var(--fe); }
+    .badge.be { background: var(--be); }
+    .stage {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+    }
+    .stage.fe { border-left: 4px solid var(--fe); }
+    .stage.be { border-left: 4px solid var(--be); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td {
+      text-align: left; padding: 7px 6px;
+      border-bottom: 1px solid var(--line); vertical-align: top;
+    }
+    th {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em;
+      color: var(--muted); font-weight: 600;
+    }
+    .num { text-align: right; white-space: nowrap; }
+    .money { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .pages { color: var(--muted); font-size: 0.88rem; }
+    .sum-row td { font-weight: 700; border-bottom: 0; padding-top: 10px; }
+    .note {
+      font-size: 0.88rem; color: var(--muted); margin: 6px 0 0;
+    }
+    .big-total {
+      margin-top: 28px; padding: 18px 20px; border-radius: 12px;
+      background: #24352c; color: #f4faf6;
+    }
+    .big-total .row {
+      display: flex; flex-wrap: wrap; justify-content: space-between;
+      gap: 8px; margin: 6px 0; font-size: 1.05rem;
+    }
+    .big-total .grand { font-size: 1.35rem; font-weight: 700; margin-top: 10px; }
+    footer { margin-top: 24px; font-size: 0.85rem; color: var(--muted); }
+    @media print {
+      body { background: #fff; }
+      .stage { break-inside: avoid; }
+      h2 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Федоскино — что за что: вёрстка, потом бэкенд</h1>
+    <p class="lead">
+      Ставка 1 500 ₽/ч. Сначала полностью вёрстка (этап A), после приёмки — Битрикс (этап B).
+      Похожие страницы считаются шаблоном, не отдельной полной вёрсткой.
+    </p>
+
+    <div class="meta">
+      <div class="pill">Вёрстка: <strong>270 ч / 405 000 ₽</strong></div>
+      <div class="pill">Бэкенд: <strong>210 ч / 315 000 ₽</strong></div>
+      <div class="pill">Итого: <strong>480 ч / 720 000 ₽</strong></div>
+    </div>
+
+    <nav class="toc">
+      <strong>Содержание</strong>
+      <ol>
+        <li><a href="#frontend">Вёрстка — этапы, страницы, часы, деньги</a></li>
+        <li><a href="#backend">Бэкенд Битрикс — этапы, часы, деньги</a></li>
+        <li><a href="#total">Итого</a></li>
+      </ol>
+    </nav>
+
+    <!-- ===================== FRONTEND ===================== -->
+    <h2 class="fe" id="frontend">1. Вёрстка (этап A) — 270 ч · 405 000 ₽</h2>
+    <p class="pages">Результат: все шаблоны HTML/CSS/JS + адаптив. Без логики Битрикс.</p>
+
+    <div class="stage fe">
+      <h3>
+        <span>A1. UI-kit и каркас сайта</span>
+        <span class="badge fe">38 ч · 57 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Блок / страница</th>
+            <th>Что входит</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>UI-kit</strong></td>
+            <td>Типографика, цвета, кнопки, поля, сетка, карточка товара, секции-модули (hero, текст, галерея, CTA, форма)</td>
+            <td class="num">20</td>
+            <td class="money">30 000</td>
+          </tr>
+          <tr>
+            <td><strong>Header</strong></td>
+            <td>2 уровня меню, поиск, иконки ЛК / избранное / корзина</td>
+            <td class="num">10</td>
+            <td class="money">15 000</td>
+          </tr>
+          <tr>
+            <td><strong>Footer</strong></td>
+            <td>Многоколоночный подвал</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr>
+            <td><strong>Мобильное меню</strong></td>
+            <td>Бургер, выезжающее меню</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A1</td>
+            <td class="num">38</td>
+            <td class="money">57 000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">Используется на всех страницах. Отдельно по страницам не дублируется.</p>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>A2. Главная</span>
+        <span class="badge fe">20 ч · 30 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Блок / страница</th>
+            <th>Что входит</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Главная</strong></td>
+            <td>Hero, сетки коллекций/категорий, блоки истории/экскурсий/локаций — сборка из UI-kit + уникальные секции</td>
+            <td class="num">14</td>
+            <td class="money">21 000</td>
+          </tr>
+          <tr>
+            <td><strong>Слайдеры главной</strong></td>
+            <td>JS каруселей</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A2</td>
+            <td class="num">20</td>
+            <td class="money">30 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>A3. Каталог и карточка товара</span>
+        <span class="badge fe">52 ч · 78 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Блок / страница</th>
+            <th>Что входит</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Каталог категорий</strong></td>
+            <td>Сетка разделов (шкатулки, интерьер, текстиль…)</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr>
+            <td><strong>Листинг товаров</strong></td>
+            <td>Сетка товаров, сортировка, пагинация (UI)</td>
+            <td class="num">12</td>
+            <td class="money">18 000</td>
+          </tr>
+          <tr>
+            <td><strong>Фильтры</strong></td>
+            <td>Панель фильтров как состояние того же листинга (не отдельная страница)</td>
+            <td class="num">12</td>
+            <td class="money">18 000</td>
+          </tr>
+          <tr>
+            <td><strong>Карточка товара</strong></td>
+            <td>Галерея, цена, в корзину, описание / «история», рекомендации (UI)</td>
+            <td class="num">16</td>
+            <td class="money">24 000</td>
+          </tr>
+          <tr>
+            <td><strong>JS галереи каталога</strong></td>
+            <td>Слайдеры / lightbox</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A3</td>
+            <td class="num">52</td>
+            <td class="money">78 000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">Экраны «каталог» и «каталог с фильтрами» из Figma = один шаблон + состояние.</p>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>A4. Корзина, оформление, auth (только UI)</span>
+        <span class="badge fe">36 ч · 54 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Блок / страница</th>
+            <th>Что входит</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Корзина</strong></td>
+            <td>Список позиций, итоги, промо (UI)</td>
+            <td class="num">10</td>
+            <td class="money">15 000</td>
+          </tr>
+          <tr>
+            <td><strong>Оформление заказа</strong></td>
+            <td>Экраны данных / шаги на общей сетке под будущий Битрикс</td>
+            <td class="num">14</td>
+            <td class="money">21 000</td>
+          </tr>
+          <tr>
+            <td><strong>Подтверждение / оплата (UI)</strong></td>
+            <td>Экран успеха / оплаты без платёжной логики</td>
+            <td class="num">5</td>
+            <td class="money">7 500</td>
+          </tr>
+          <tr>
+            <td><strong>Вход / регистрация</strong></td>
+            <td>Формы auth</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr>
+            <td><strong>Состояния скидка / промо в шапке</strong></td>
+            <td>UI для авторизованного</td>
+            <td class="num">3</td>
+            <td class="money">4 500</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A4</td>
+            <td class="num">36</td>
+            <td class="money">54 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>A5. Личный кабинет (только UI)</span>
+        <span class="badge fe">24 ч · 36 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Блок / страница</th>
+            <th>Что входит</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Shell ЛК</strong></td>
+            <td>Общий layout + меню кабинета (на все экраны ЛК)</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr>
+            <td><strong>Профиль</strong></td>
+            <td>Форма данных пользователя</td>
+            <td class="num">5</td>
+            <td class="money">7 500</td>
+          </tr>
+          <tr>
+            <td><strong>Список заказов</strong></td>
+            <td>Таблица / карточки заказов</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr>
+            <td><strong>Деталь заказа</strong></td>
+            <td>Состав, статусы, суммы</td>
+            <td class="num">5</td>
+            <td class="money">7 500</td>
+          </tr>
+          <tr>
+            <td><strong>Избранное</strong></td>
+            <td>Сетка избранных товаров</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A5</td>
+            <td class="num">24</td>
+            <td class="money">36 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>A6. Контент и услуги (шаблоны)</span>
+        <span class="badge fe">40 ч · 60 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Шаблон</th>
+            <th>Какие страницы закрывает</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Long-form</strong></td>
+            <td>О Федоскино, Промысел, История, часть Локации, Подлинники и подделки</td>
+            <td class="num">12</td>
+            <td class="money">18 000</td>
+          </tr>
+          <tr>
+            <td><strong>Услуга / оффер</strong></td>
+            <td>Экскурсии, Мастер-классы, Изделия на заказ, Реставрация и уход, Программа лояльности</td>
+            <td class="num">10</td>
+            <td class="money">15 000</td>
+          </tr>
+          <tr>
+            <td><strong>Текст</strong></td>
+            <td>Доставка и оплата, Обмен и возврат, Оферта, ПДн, Пользовательское соглашение</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr>
+            <td><strong>Новости: список + деталь</strong></td>
+            <td>Новости; СМИ о нас — тот же паттерн</td>
+            <td class="num">10</td>
+            <td class="money">15 000</td>
+          </tr>
+          <tr>
+            <td><strong>Магазины / вакансии</strong></td>
+            <td>Сборка на модулях (список + карта/форма)</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A6</td>
+            <td class="num">40</td>
+            <td class="money">60 000</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">~15+ экранов Figma закрываются 4–5 шаблонами, а не 15 полными вёрстками.</p>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>A7. Адаптив и сдача вёрстки</span>
+        <span class="badge fe">36 ч · 54 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Блок</th>
+            <th>Что входит</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Адаптив</strong></td>
+            <td>Mobile/tablet по компонентам и шаблонам (не по каждой странице с нуля)</td>
+            <td class="num">26</td>
+            <td class="money">39 000</td>
+          </tr>
+          <tr>
+            <td><strong>Приёмка вёрстки</strong></td>
+            <td>Правки по согласованию до фиксации HTML</td>
+            <td class="num">10</td>
+            <td class="money">15 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог A7</td>
+            <td class="num">36</td>
+            <td class="money">54 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage fe">
+      <h3>
+        <span>Буфер вёрстки (внутри 270 ч)</span>
+        <span class="badge fe">24 ч · 36 000 ₽</span>
+      </h3>
+      <p class="note" style="margin:0">
+        Разница между суммой подэтагов A1–A7 (246 ч) и договором по вёрстке (270 ч):
+        мелкие правки макета, стыковка блоков, непредвиденные состояния UI до приёмки.
+      </p>
+      <table>
+        <tbody>
+          <tr class="sum-row">
+            <td>A1–A7 по строкам</td>
+            <td class="num">246 ч</td>
+            <td class="money">369 000 ₽</td>
+          </tr>
+          <tr class="sum-row">
+            <td>Буфер A</td>
+            <td class="num">24 ч</td>
+            <td class="money">36 000 ₽</td>
+          </tr>
+          <tr class="sum-row">
+            <td><strong>Итого вёрстка (этап A)</strong></td>
+            <td class="num"><strong>270 ч</strong></td>
+            <td class="money"><strong>405 000 ₽</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===================== BACKEND ===================== -->
+    <h2 class="be" id="backend">2. Бэкенд Битрикс (этап B) — 210 ч · 315 000 ₽</h2>
+    <p class="pages">Старт только после приёмки вёрстки. Натягивание готового HTML на компоненты + логика магазина.</p>
+
+    <div class="stage be">
+      <h3>
+        <span>B1. Установка и перенос вёрстки</span>
+        <span class="badge be">30 ч · 45 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Задача</th>
+            <th>Связь со страницами / блоками</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Установка Битрикс Бизнес, настройки, права</td>
+            <td>Инфраструктура</td>
+            <td class="num">8</td>
+            <td class="money">12 000</td>
+          </tr>
+          <tr>
+            <td>Шаблон `/local`, assets</td>
+            <td>Перенос UI-kit</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr>
+            <td>header.php / footer.php</td>
+            <td>Header, footer, моб. меню</td>
+            <td class="num">8</td>
+            <td class="money">12 000</td>
+          </tr>
+          <tr>
+            <td>Меню, типы страниц, подключение 3 шаблонов контента</td>
+            <td>Long-form / Услуга / Текст</td>
+            <td class="num">8</td>
+            <td class="money">12 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог B1</td>
+            <td class="num">30</td>
+            <td class="money">45 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage be">
+      <h3>
+        <span>B2. Каталог</span>
+        <span class="badge be">48 ч · 72 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Задача</th>
+            <th>Страницы / блоки</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Инфоблок каталога, свойства, разделы</td>
+            <td>Вся витрина</td>
+            <td class="num">12</td>
+            <td class="money">18 000</td>
+          </tr>
+          <tr>
+            <td>catalog.section + smart.filter на вёрстку</td>
+            <td>Листинг, фильтры, каталог категорий</td>
+            <td class="num">18</td>
+            <td class="money">27 000</td>
+          </tr>
+          <tr>
+            <td>catalog.element на вёрстку</td>
+            <td>Карточка товара</td>
+            <td class="num">12</td>
+            <td class="money">18 000</td>
+          </tr>
+          <tr>
+            <td>Поиск + компоненты блоков главной</td>
+            <td>Главная, поиск в шапке</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог B2</td>
+            <td class="num">48</td>
+            <td class="money">72 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage be">
+      <h3>
+        <span>B3. Корзина, заказ, оплата</span>
+        <span class="badge be">42 ч · 63 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Задача</th>
+            <th>Страницы / блоки</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Корзина (компонент + шаблон)</td>
+            <td>Корзина</td>
+            <td class="num">8</td>
+            <td class="money">12 000</td>
+          </tr>
+          <tr>
+            <td>sale.order.ajax под свёрстанные экраны</td>
+            <td>Оформление заказа</td>
+            <td class="num">18</td>
+            <td class="money">27 000</td>
+          </tr>
+          <tr>
+            <td>1 платёжный шлюз</td>
+            <td>Оплата</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr>
+            <td>Письма заказа</td>
+            <td>Сервисные уведомления</td>
+            <td class="num">4</td>
+            <td class="money">6 000</td>
+          </tr>
+          <tr>
+            <td>Скидки / промокоды (штатные правила)</td>
+            <td>Корзина, шапка авторизованного</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог B3</td>
+            <td class="num">42</td>
+            <td class="money">63 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage be">
+      <h3>
+        <span>B4. Авторизация и личный кабинет</span>
+        <span class="badge be">30 ч · 45 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Задача</th>
+            <th>Страницы / блоки</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Шаблоны входа / регистрации</td>
+            <td>Auth</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr>
+            <td>sale.personal на shell ЛК</td>
+            <td>Профиль, заказы, деталь заказа</td>
+            <td class="num">14</td>
+            <td class="money">21 000</td>
+          </tr>
+          <tr>
+            <td>Избранное</td>
+            <td>Избранное</td>
+            <td class="num">7</td>
+            <td class="money">10 500</td>
+          </tr>
+          <tr>
+            <td>Отображение персональной скидки</td>
+            <td>Шапка</td>
+            <td class="num">3</td>
+            <td class="money">4 500</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог B4</td>
+            <td class="num">30</td>
+            <td class="money">45 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage be">
+      <h3>
+        <span>B5. Контент, формы, SEO</span>
+        <span class="badge be">28 ч · 42 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Задача</th>
+            <th>Страницы / блоки</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Контент через 2–3 типа страниц / ИБ</td>
+            <td>О бренде, услуги, юридика, магазины, вакансии…</td>
+            <td class="num">12</td>
+            <td class="money">18 000</td>
+          </tr>
+          <tr>
+            <td>Новости (+ СМИ тем же компонентом)</td>
+            <td>Новости, СМИ о нас</td>
+            <td class="num">5</td>
+            <td class="money">7 500</td>
+          </tr>
+          <tr>
+            <td>Формы заявок (общая)</td>
+            <td>Услуги, вакансии, обратная связь</td>
+            <td class="num">5</td>
+            <td class="money">7 500</td>
+          </tr>
+          <tr>
+            <td>SEO-база</td>
+            <td>ЧПУ, мета, крошки, sitemap — весь сайт</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог B5</td>
+            <td class="num">28</td>
+            <td class="money">42 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage be">
+      <h3>
+        <span>B6. Стабилизация и запуск</span>
+        <span class="badge be">24 ч · 36 000 ₽</span>
+      </h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Задача</th>
+            <th>Охват</th>
+            <th class="num">Ч</th>
+            <th class="money">₽</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Кеш / композит / картинки</td>
+            <td>Весь сайт</td>
+            <td class="num">6</td>
+            <td class="money">9 000</td>
+          </tr>
+          <tr>
+            <td>Прогон сценариев, багфиксы интеграции</td>
+            <td>Каталог → корзина → заказ → ЛК</td>
+            <td class="num">10</td>
+            <td class="money">15 000</td>
+          </tr>
+          <tr>
+            <td>Деплой, передача, инструкция</td>
+            <td>Продакшен</td>
+            <td class="num">8</td>
+            <td class="money">12 000</td>
+          </tr>
+          <tr class="sum-row">
+            <td colspan="2">Подытог B6</td>
+            <td class="num">24</td>
+            <td class="money">36 000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="stage be">
+      <h3>
+        <span>Буфер бэкенда (внутри 210 ч)</span>
+        <span class="badge be">8 ч · 12 000 ₽</span>
+      </h3>
+      <p class="note" style="margin:0">
+        Сумма B1–B6 = 202 ч; до 210 ч — буфер на стыковку вёрстки с компонентами и мелкие правки интеграции.
+      </p>
+      <table>
+        <tbody>
+          <tr class="sum-row">
+            <td>B1–B6 по строкам</td>
+            <td class="num">202 ч</td>
+            <td class="money">303 000 ₽</td>
+          </tr>
+          <tr class="sum-row">
+            <td>Буфер B</td>
+            <td class="num">8 ч</td>
+            <td class="money">12 000 ₽</td>
+          </tr>
+          <tr class="sum-row">
+            <td><strong>Итого бэкенд (этап B)</strong></td>
+            <td class="num"><strong>210 ч</strong></td>
+            <td class="money"><strong>315 000 ₽</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="big-total" id="total">
+      <div class="row"><span>Этап A · Вёрстка</span><span>270 ч · 405 000 ₽</span></div>
+      <div class="row"><span>Этап B · Битрикс</span><span>210 ч · 315 000 ₽</span></div>
+      <div class="grand">Всего: 480 ч × 1 500 ₽ = 720 000 ₽</div>
+      <div style="margin-top:8px; opacity:0.9; font-size:0.95rem;">
+        Оплата: 405 000 ₽ после приёмки вёрстки → 315 000 ₽ после запуска на Битрикс.
+        Срок подряд ~3 месяца.
+      </div>
+    </div>
+
+    <footer>
+      Ставка 1 500 ₽/ч. Похожие страницы — шаблоны. Вне сметы: лицензия, хостинг, наполнение, 1С, EN, бронь МК.
+    </footer>
+  </div>
+</body>
+</html>
